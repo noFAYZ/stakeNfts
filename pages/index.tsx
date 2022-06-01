@@ -124,7 +124,8 @@ return(imageUrl)
       
       NFTData.push({
         id: parseInt(Nfts[i]),
-        image: await getTokenImageUri(Nfts[i])
+        image: await getTokenImageUri(Nfts[i]),
+        staked: false
       })
       console.log(NFTData)
     }
