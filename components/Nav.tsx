@@ -42,14 +42,15 @@ const Nav:FC<Props>  =  (props)  => {
             <Grid.Container >
               <Grid xs>
           
-                  <Image
+             {/*      <Image
                 width={120}
                 height={60}  
                 src="/6.png"
                 alt="Default Image"
                 objectFit="cover"
               
-              /> 
+              />  */}
+              <Text b css={{"justifyContent":"center",paddingTop:"$8",fontSize:"22px"}}>Logo</Text>
  
               </Grid>
       
