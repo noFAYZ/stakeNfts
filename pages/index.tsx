@@ -175,7 +175,7 @@ return(imageUrl)
           </>
 
           :
-          <Text b css={{"justifyContent":"center",p:"30%",fontSize:"20px"}}>No NFTs
+          <Text b css={{"justifyContent":"center",p:"32%",fontSize:"20px"}}>No NFTs
         <span>  </span>  <span>  </span>  <span>  </span>
           <span>of Contract: </span>  <span style={{color:"red"}}> {ContractAddress}</span>
           </Text>
