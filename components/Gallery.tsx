@@ -2,6 +2,7 @@ import { FC, useState,useEffect } from 'react'
 import Image from 'next/image'
 import { Container,Checkbox, Card, Col, Row, Button, Text, Grid, Divider, Modal, Input, Spacer, Link } from "@nextui-org/react";
 import { useTimer } from 'react-timer-hook';
+import Timer from './Timer';
 
 interface Props {
     userAddress?: string | "",
@@ -40,6 +41,7 @@ const Gallery:FC<Props> = (props) => {
         <Row wrap="wrap" justify="space-between">
           <Text b>ID: {item.id}</Text>
           <Text css={{ color: "$accents4", fontWeight: "$semibold" }}>
+            <Timer days={2}/>
                   {item.staked ? "Staked" : "Not Staked" }
                 </Text>
         </Row>
