@@ -27,8 +27,8 @@ const Timer:FC<Props> = (props) =>{
 
   return (
     <div style={{textAlign: 'center'}}>
-      <div style={{fontSize: '20px'}}>
-        <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
+      <div style={{fontSize: '20px', color:"ButtonText"}}>
+        <span> {days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
       </div>
     </div>
   );

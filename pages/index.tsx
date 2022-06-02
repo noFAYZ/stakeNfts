@@ -7,6 +7,9 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import { ExternalProvider, Web3Provider } from '@ethersproject/providers';
 import Gallery from '../components/Gallery'
 import Stake from '../components/Stake'
+import axios from 'axios'
+
+
 
 const ContractAbi = require('../abi.json');
 const ContractAddress = "0x11F41241f7FF609F46c6854B402D357cBB30310d";
@@ -27,10 +30,26 @@ const Home: NextPage = () => {
   const [isConnecting, setisConnecting] = useState<boolean>(false)
   
   const [userAddress, setUserAddress] = useState<string>("")
-  const [NFTDatas, setNFTDatas] = useState<{ id: number; image: string; staked: boolean;}[]>([])
+  const [NFTDatas, setNFTDatas] = useState<{ id: number; image: string; staked: boolean;time:number}[]>([])
  
-  const NFTData: { id: number; image: string; staked: boolean;}[] = []
+  const NFTData: { id: number; image: string; staked: boolean;time:number}[] = []
 
+
+
+  async function isStaked(id:any) {
+
+    const data = await axios.get('https://sheet2api.com/v1/KlXFOUSuQ1Oc/stake')
+
+    const filteredData = data.data.find(x => String(x.staked) === String('TRUE') && String(x.id) === String(id));
+
+    const stackInfo = {
+      staked: filteredData ? true : false,
+      time: filteredData ? filteredData.time : 0
+    }
+    
+  return stackInfo
+
+  }
 
 
   async function connect() {
@@ -53,16 +72,21 @@ const Home: NextPage = () => {
       const Nfts = await Contract.walletOfOwner(add);
 
     for(let i = 0; i < Nfts.length; i++) {
+
+      const stakedInfo = await isStaked(Nfts[i])
       
       NFTData.push({
         id: parseInt(Nfts[i]),
         image: await getTokenImageUri(Nfts[i]),
-        staked: false
+        staked: stakedInfo.staked,
+        time: stakedInfo.time
       })
-    
+    console.log(NFTData[i].staked)
     }
-       console.log(NFTData)
-      setNFTDatas(NFTData)
+
+    
+    setNFTDatas(NFTData)
+
     } catch (e) {
      console.log(e);
      setisConnecting(false);
@@ -155,7 +179,7 @@ return(imageUrl)
       />
 
     {/* Gallery */}  
-      <Spacer y={6} />
+      <Spacer y={4} />
       {walletConnected?
         <>
         
@@ -163,9 +187,10 @@ return(imageUrl)
           <>
 
             <Stake
+          
             NFTData = {NFTDatas}
             />
-        <Spacer y={8} />
+        <Spacer y={5} />
 
             <Gallery NFTData={NFTDatas}
             userAddress={userAddress}

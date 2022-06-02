@@ -8,7 +8,7 @@ interface Props {
     userAddress?: string | "",
     isConnected?: boolean,
     isAuthenticated?: boolean,
-    NFTData: { id: number; image: string; staked: boolean; }[] ,
+    NFTData: { id: number; image: string; staked: boolean; time:number }[] ,
   }
 
 const Gallery:FC<Props> = (props) => {
@@ -23,8 +23,11 @@ const Gallery:FC<Props> = (props) => {
 <>
 
 
-<Grid.Container  justify="center" >
+<Grid.Container gap={3}  justify="center">
 {props.NFTData?.map((item, index) => (
+
+  <>
+
   <Grid xs={6} sm={2} key={index} css={{display:"flex",justifyContent:"center",px:"10px",alignItems:"center"}}>
     <Card hoverable clickable color={"default"} css={{w:"250px",h:"300px"}} >
       <Card.Body css={{ p: 0 }}>
@@ -41,13 +44,27 @@ const Gallery:FC<Props> = (props) => {
         <Row wrap="wrap" justify="space-between">
           <Text b>ID: {item.id}</Text>
           <Text css={{ color: "$accents4", fontWeight: "$semibold" }}>
-            <Timer days={2}/>
-                  {item.staked ? "Staked" : "Not Staked" }
+            
+                  {item.staked ? 
+                  
+                  <>
+                  <Timer days={item.time}/>
+                   <Text color="green" css={{fontWeight:"$medium"}}>Staked</Text> 
+                  </>
+                 
+                  
+                  : 
+                  
+                  "Not Staked" 
+                  
+                  }
                 </Text>
         </Row>
       </Card.Footer>
     </Card>
   </Grid>
+
+  </>
 ))}
 </Grid.Container>
 
