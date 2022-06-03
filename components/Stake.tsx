@@ -2,11 +2,11 @@ import { Button, Checkbox, Grid, Input, Loading, Modal, Row, Spacer,Text } from 
 import React, { FC, useEffect, useState } from 'react'
 import ImagePicker from 'react-image-picker'
 import 'react-image-picker/dist/index.css'
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import { Range, getTrackBackground } from 'react-range';
 
 interface Props {
-
+  refreshGallery():Promise<void>,
   NFTData: { id: number; image: string; staked: boolean;}[] ,
 
 }
@@ -17,16 +17,17 @@ const Stake:FC<Props> = (props) => {
   const [stake, setStake] = useState<{ id: number; image: string; staked: boolean;}[]>([])
   const [staked, setStaked] = useState<{ id: number; image: string; staked: boolean;}[]>([])
   const [toStake, setToStaked] = useState<{ id: number; image: string; staked: boolean;}[]>([])
+  const [stakingComplete, setStakingComplete] = useState<{ id: number; image: string; staked: boolean;}[]>([])
   const [values, setValues] = useState([50]);
   const [visible, setVisible] = useState(false);
 
 
-  let stakeData: { id: number; image: string; staked: string; time: number}
+  let stakeData: { id: number; image: string; staked: string; time: Date}
 
 
   async function isStaked(id:any) {
 
-    const data = await axios.get('https://sheet2api.com/v1/KlXFOUSuQ1Oc/stake')
+    const data = await axios.get('https://sheet2api.com/v1/AmKyRTbTfybM/stake')
 
     const filteredData = data.data.find(x => String(x.staked) === String('TRUE') && String(x.id) === String(id));
     if(filteredData) return true
@@ -53,37 +54,81 @@ const Stake:FC<Props> = (props) => {
   }
 
 
-  function stakeNfts() {
-     setVisible(true)
+ async function stakeNfts() {
+      setVisible(true)
       setStaked(stake)
       
       stake.map(async (x:any) => {
 
   if(!await isStaked(x.value)) {
 
+       const toDate:Date = new Date( (new Date()).setDate((new Date()).getDate() + values[0]) ) 
+       console.log(toDate)
+
           stakeData={
             id: x.value,
             image: x.src,
             staked: "TRUE",
-            time: values[0]*86400
+            time: toDate
           }
 
-          const data = await axios.post('https://sheet2api.com/v1/KlXFOUSuQ1Oc/stake',stakeData)
+          const data = await axios.post('https://sheet2api.com/v1/AmKyRTbTfybM/stake',stakeData)
           console.log(data.status,stakeData)
 
-
+         
         }
         else{
           console.log("Already Staked")
           setVisible(false)
         }
-        setVisible(false)
+        
       })
-
-
+        
+        await props.refreshGallery()
+        setVisible(false)
+   
+    
+      
+    
      
     }
 
+  
+  function unStakeNfts() {
+      setVisible(true)
+      setStaked(stake)
+      
+      stake.map(async (x:any) => {
+
+  if(await isStaked(x.value)) {
+
+       const toDate:Date = new Date( (new Date()).setDate((new Date()).getDate() + values[0]) ) 
+       console.log(toDate)
+       let stakedData: {limit:number; query_type:string; id: number; image: string; staked}
+          stakedData={
+            'limit': 1,
+          'query_type': 'and',
+            'id': x.value,
+            'image': x.src,
+            'staked': "TRUE",
+          }
+
+          const data = await axios.delete('https://sheet2api.com/v1/AmKyRTbTfybM/stake?limit=1&query_type=and&id='+stakedData.id+'&image='+stakedData.image+'')
+          console.log(data.status,stakeData)
+
+          await props.refreshGallery()
+          setVisible(false)
+        }
+        else{
+          console.log("Already Staked")
+          setVisible(false)
+        }
+        
+      })
+
+    
+     
+    }
 
 
   const closeHandler = () => {
@@ -223,7 +268,7 @@ const Stake:FC<Props> = (props) => {
     
     <Button auto color="primary"  css={{marginTop : "11px"}}  onPress={stakeNfts} >Stake</Button>
     <Spacer x={1} />
-    <Button auto color="error"  css={{marginTop : "11px"}}  flat >Unstake</Button>
+    <Button auto color="error"  css={{marginTop : "11px"}}  flat onPress={unStakeNfts} >Unstake</Button>
 
   </Grid.Container>
 

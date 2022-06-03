@@ -8,7 +8,7 @@ interface Props {
     userAddress?: string | "",
     isConnected?: boolean,
     isAuthenticated?: boolean,
-    NFTData: { id: number; image: string; staked: boolean; time:number }[] ,
+    NFTData: { id: number; image: string; staked: boolean; time:Date }[] ,
   }
 
 const Gallery:FC<Props> = (props) => {
@@ -29,7 +29,7 @@ const Gallery:FC<Props> = (props) => {
   <>
 
   <Grid xs={6} sm={2} key={index} css={{display:"flex",justifyContent:"center",px:"10px",alignItems:"center"}}>
-    <Card hoverable clickable color={"default"} css={{w:"250px",h:"300px"}} >
+    <Card hoverable key={index} clickable color={"default"} css={{w:"250px",h:"300px"}} >
       <Card.Body css={{ p: 0 }}>
         <Card.Image
           objectFit="cover"

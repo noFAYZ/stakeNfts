@@ -2,15 +2,13 @@ import { FC } from 'react';
 import { TimerSettings, useTimer } from 'react-timer-hook';
 
 interface Props {
-    days: number ,
+    days: Date ,
   }
 
 const Timer:FC<Props> = (props) =>{
 
-    const time:Date = new Date();
-    time.setSeconds(time.getSeconds() + props.days);
 
-    const sett = {expiryTimestamp:time, onExpire: () => console.warn('onExpire called') } as TimerSettings
+    const sett = {expiryTimestamp:props.days, onExpire: () => console.warn('onExpire called') } as TimerSettings
 
   const {
     seconds,
@@ -27,8 +25,8 @@ const Timer:FC<Props> = (props) =>{
 
   return (
     <div style={{textAlign: 'center'}}>
-      <div style={{fontSize: '20px', color:"ButtonText"}}>
-        <span> {days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
+      <div style={{fontSize: '15px', color:"ButtonText"}}>
+        <span>{days} d </span>  <span>{hours} h</span>  {minutes} m <span>{seconds} s</span>
       </div>
     </div>
   );

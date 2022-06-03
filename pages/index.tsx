@@ -30,21 +30,70 @@ const Home: NextPage = () => {
   const [isConnecting, setisConnecting] = useState<boolean>(false)
   
   const [userAddress, setUserAddress] = useState<string>("")
-  const [NFTDatas, setNFTDatas] = useState<{ id: number; image: string; staked: boolean;time:number}[]>([])
+  const [NFTDatas, setNFTDatas] = useState<{ id: number; image: string; staked: boolean;time:Date}[]>([])
  
-  const NFTData: { id: number; image: string; staked: boolean;time:number}[] = []
+  let NFTData: { id: number; image: string; staked: boolean; time:Date}[] = []
 
 
+
+
+async function refreshGallery() {
+  try {
+    console.log("function refresjh")
+    const browserProvider = await detectEthereumProvider() as ExternalProvider;const Provider = new ethers.providers.Web3Provider(browserProvider)
+    provider = Provider;
+    signer = provider.getSigner()
+    
+      await provider.provider.request!({ method: 'eth_requestAccounts' });
+      const add = await signer.getAddress();
+
+    
+      const Contract = new ethers.Contract(
+        ContractAddress!,
+        ContractAbi,
+        provider,
+      );
+      
+      
+      const Nfts = await Contract.walletOfOwner(add);
+      NFTData = []
+    for(let i = 0; i < Nfts.length; i++) {
+
+      const stakedInfo = await isStaked(Nfts[i])
+      
+      NFTData.push({
+        id: parseInt(Nfts[i]),
+        image: await getTokenImageUri(Nfts[i]),
+        staked: stakedInfo.staked,
+        time: stakedInfo.time
+      })
+    console.log(NFTData[i].staked)
+    }
+
+    
+    setNFTDatas(NFTData)
+
+    } catch (e) {
+     console.log(e);
+     
+    }
+}
+/* 
+This function checks the stacked status and returns the data
+
+Parameters: (id:any) NFT/Token ID
+Return: Object 
+*/
 
   async function isStaked(id:any) {
 
-    const data = await axios.get('https://sheet2api.com/v1/KlXFOUSuQ1Oc/stake')
+    const data = await axios.get('https://sheet2api.com/v1/AmKyRTbTfybM/stake')
 
     const filteredData = data.data.find(x => String(x.staked) === String('TRUE') && String(x.id) === String(id));
 
     const stackInfo = {
       staked: filteredData ? true : false,
-      time: filteredData ? filteredData.time : 0
+      time: filteredData ? new Date(filteredData.time) : new Date()
     }
     
   return stackInfo
@@ -52,12 +101,21 @@ const Home: NextPage = () => {
   }
 
 
+
+/* 
+This function connects the Metamask wallet and gets all the nfts and their data to render Gallery and Stake components
+
+Parameters: none
+Return: none 
+*/
+
   async function connect() {
+    try {
     setisConnecting(true);
     const browserProvider = await detectEthereumProvider() as ExternalProvider;const Provider = new ethers.providers.Web3Provider(browserProvider)
     provider = Provider;
     signer = provider.getSigner()
-    try {
+    
       await provider.provider.request!({ method: 'eth_requestAccounts' });
       const add = await signer.getAddress();
       setUserAddress(add);
@@ -70,7 +128,7 @@ const Home: NextPage = () => {
       
       
       const Nfts = await Contract.walletOfOwner(add);
-
+     NFTData = []
     for(let i = 0; i < Nfts.length; i++) {
 
       const stakedInfo = await isStaked(Nfts[i])
@@ -94,10 +152,17 @@ const Home: NextPage = () => {
     }
       setisConnecting(false);
       setWalletConnected(true);
-      }
 
 
+  }
 
+
+/* 
+This function makes a Smart COntract call to get the URI of a given token ID and replace ipfs protocol with a gateway and returns a working image URL.
+
+Parameters: (id:number) Token ID 
+Return: the Token image URL 
+*/
   async function getTokenImageUri(id:number) {
     const browserProvider = await detectEthereumProvider() as ExternalProvider;
     const Provider = new ethers.providers.Web3Provider(browserProvider)
@@ -129,33 +194,14 @@ return(imageUrl)
 
   }
 
-  async function getNftIds() {
-    const browserProvider = await detectEthereumProvider() as ExternalProvider;
-    const Provider = new ethers.providers.Web3Provider(browserProvider)
 
-    provider = Provider;
-    signer = provider.getSigner()
 
-    const Contract = new ethers.Contract(
-      ContractAddress!,
-      ContractAbi,
-      provider,
-    );
-  
-    const Nfts = await Contract.walletOfOwner(userAddress);
+/* 
+This function sets the required useStates to false to disconenct the metamask wallet.
 
-    for(let i = 0; i < Nfts.length; i++) {
-      
-      NFTData.push({
-        id: parseInt(Nfts[i]),
-        image: await getTokenImageUri(Nfts[i]),
-        staked: false
-      })
-      console.log(NFTData)
-    }
-
-    
-  }
+Parameters: none
+Return: none 
+*/
 
   function disconnect() {
     console.log("disconnected")
@@ -187,7 +233,7 @@ return(imageUrl)
           <>
 
             <Stake
-          
+            refreshGallery={()=> refreshGallery()}
             NFTData = {NFTDatas}
             />
         <Spacer y={5} />
