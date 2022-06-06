@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { TimerSettings, useTimer } from 'react-timer-hook';
+import { TimerSettings, useStopwatch  } from 'react-timer-hook';
 
 interface Props {
     days: Date ,
@@ -7,20 +7,18 @@ interface Props {
 
 const Timer:FC<Props> = (props) =>{
 
-
-    const sett = {expiryTimestamp:props.days, onExpire: () => console.warn('onExpire called') } as TimerSettings
-
-  const {
-    seconds,
-    minutes,
-    hours,
-    days,
-    isRunning,
-    start,
-    pause,
-    resume,
-    restart,
-  } = useTimer(sett);
+  const time = new Date();
+  time.setSeconds(time.getSeconds()+ Date.now()/ 1000- Math.floor(props.days.getTime()) / 1000); 
+    const {
+      seconds,
+      minutes,
+      hours,
+      days,
+      isRunning,
+      start,
+      pause,
+      reset,
+    } = useStopwatch({ autoStart: true,offsetTimestamp:time });
 
 
   return (

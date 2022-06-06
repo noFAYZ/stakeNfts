@@ -8,7 +8,7 @@ import { ExternalProvider, Web3Provider } from '@ethersproject/providers';
 import Gallery from '../components/Gallery'
 import Stake from '../components/Stake'
 import axios from 'axios'
-
+import Image from 'next/image'
 
 
 const ContractAbi = require('../abi.json');
@@ -87,7 +87,7 @@ Return: Object
 
   async function isStaked(id:any) {
 
-    const data = await axios.get('https://sheet2api.com/v1/AmKyRTbTfybM/stake')
+    const data = await axios.get('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a')
 
     const filteredData = data.data.find(x => String(x.staked) === String('TRUE') && String(x.id) === String(id));
 
@@ -213,9 +213,10 @@ Return: none
 
   return (
    <>
-
+<div>
     {/* Navigation */}
       <Nav   
+      refreshGallery={()=> refreshGallery()}
       disconnect={disconnect}
       connect={() =>connect()} 
       isConnecting = {isConnecting}
@@ -258,6 +259,8 @@ Return: none
       
       null
       }
+</div>
+
     </>
   )
 

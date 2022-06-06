@@ -4,6 +4,7 @@ import { Container,Checkbox, Card, Col, Row, Button, Text, Grid, Divider, Modal,
 
 
 interface Props {
+  refreshGallery():Promise<void>,
   connect():Promise<void>,
   disconnect():void,
   userAddress?: string | "",
@@ -27,6 +28,12 @@ const Nav:FC<Props>  =  (props)  => {
     return;
   }
 
+  async function refresh(): Promise<void> {
+    await props.refreshGallery();
+   
+    return;
+  }
+
   function disconnectWallet(){
     props.disconnect();
    
@@ -35,21 +42,21 @@ const Nav:FC<Props>  =  (props)  => {
   return (
    
 
-        <Card>
+        <Card css={{background:'Black',borderRadius:'0'}}>
          <Container>
             <Row css={{ height: "60px", bgBlur: "black", background: 'transparent' }}>
 
             <Grid.Container >
               <Grid xs>
           
-             {/*      <Image
-                width={120}
+                <Image
+                width={60}
                 height={60}  
-                src="/6.png"
+                src="/log.png"
                 alt="Default Image"
                 objectFit="cover"
               
-              />  */}
+              />  
               <Text b css={{"justifyContent":"center",paddingTop:"$8",fontSize:"22px"}}>Logo</Text>
  
               </Grid>
@@ -115,8 +122,12 @@ const Nav:FC<Props>  =  (props)  => {
                 </Button>
                 <Spacer x={1} />
                 {props.isConnected ?
+
+                <>
                 <Button auto color="error"  css={{marginTop : "11px"}}  flat animated  onPress={disconnectWallet}>Logout</Button>
-              
+                <Spacer x={1} />
+                <Button auto color="success"  css={{marginTop : "11px"}}  flat animated  onPress={refresh}>Refresh</Button>
+              </>
                 :
                   null
               }

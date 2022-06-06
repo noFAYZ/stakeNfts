@@ -20,14 +20,14 @@ const Stake:FC<Props> = (props) => {
   const [stakingComplete, setStakingComplete] = useState<{ id: number; image: string; staked: boolean;}[]>([])
   const [values, setValues] = useState([50]);
   const [visible, setVisible] = useState(false);
-
+  const [stakeDone, setStakeDone] = useState(false);
 
   let stakeData: { id: number; image: string; staked: string; time: Date}
 
 
   async function isStaked(id:any) {
 
-    const data = await axios.get('https://sheet2api.com/v1/AmKyRTbTfybM/stake')
+    const data = await axios.get('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a')
 
     const filteredData = data.data.find(x => String(x.staked) === String('TRUE') && String(x.id) === String(id));
     if(filteredData) return true
@@ -40,10 +40,18 @@ const Stake:FC<Props> = (props) => {
   useEffect(() =>{
     console.log("Staked: ",staked)
 
-
-
+    async function refreshG() {
+       if(stakeDone){
+      await props.refreshGallery()
+      setVisible(false)
+      setStakeDone(false)
+    }
+    
+    }
+  refreshG()
+    
     console.log("NFTs: ",props.NFTData)
-   },[staked])
+   },[stakeDone])
 
 
   function onPickImages(images:any) {
@@ -57,12 +65,13 @@ const Stake:FC<Props> = (props) => {
  async function stakeNfts() {
       setVisible(true)
       setStaked(stake)
+      setStakeDone(false)
       
       stake.map(async (x:any) => {
 
   if(!await isStaked(x.value)) {
 
-       const toDate:Date = new Date( (new Date()).setDate((new Date()).getDate() + values[0]) ) 
+       const toDate:Date = new Date() 
        console.log(toDate)
 
           stakeData={
@@ -72,7 +81,7 @@ const Stake:FC<Props> = (props) => {
             time: toDate
           }
 
-          const data = await axios.post('https://sheet2api.com/v1/AmKyRTbTfybM/stake',stakeData)
+          const data = await axios.post('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a',stakeData)
           console.log(data.status,stakeData)
 
          
@@ -84,19 +93,15 @@ const Stake:FC<Props> = (props) => {
         
       })
         
-        await props.refreshGallery()
-        setVisible(false)
-   
-    
-      
-    
-     
+      setStakeDone(true)
+ 
     }
 
   
-  function unStakeNfts() {
+  async function unStakeNfts() {
       setVisible(true)
       setStaked(stake)
+      setStakeDone(false)
       
       stake.map(async (x:any) => {
 
@@ -113,10 +118,10 @@ const Stake:FC<Props> = (props) => {
             'staked': "TRUE",
           }
 
-          const data = await axios.delete('https://sheet2api.com/v1/AmKyRTbTfybM/stake?limit=1&query_type=and&id='+stakedData.id+'&image='+stakedData.image+'')
+          const data = await axios.delete('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a/id/'+stakedData.id+'')
           console.log(data.status,stakeData)
 
-          await props.refreshGallery()
+         
           setVisible(false)
         }
         else{
@@ -127,7 +132,8 @@ const Stake:FC<Props> = (props) => {
       })
 
     
-     
+      setStakeDone(true)
+   
     }
 
 
@@ -160,106 +166,6 @@ const Stake:FC<Props> = (props) => {
   <Spacer y={1} />
 
 
-    <div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    marginTop: "2em"
-  }}
-  >
-<Range
-        values={values}
-        step={5}
-        min={5}
-        max={60}
-        onChange={(values) => setValues(values)}
-        renderMark={({ props, index }) => (
-          <div
-            {...props}
-            style={{
-              ...props.style,
-              height: '16px',
-              width: '5px',
-              backgroundColor: index * 5 < values[0] ? '#548BF4' : '#ccc'
-            }}
-          />
-        )}
-        renderTrack={({ props, children }) => (
-          <div
-            onMouseDown={props.onMouseDown}
-            onTouchStart={props.onTouchStart}
-            style={{
-              ...props.style,
-              height: '36px',
-              display: 'flex',
-              width: '25%'
-            }}
-          >
-            <div
-              ref={props.ref}
-              style={{
-                height: '5px',
-                width: '100%',
-                borderRadius: '4px',
-                background: getTrackBackground({
-                  values: values,
-                  colors: ['#548BF4', '#ccc'],
-                  min: 5,
-                  max: 60,
-                 
-                }),
-                alignSelf: 'center'
-              }}
-            >
-              {children}
-            </div>
-          </div>
-        )}
-        renderThumb={({ props, isDragged }) => (
-          <div
-          {...props}
-          style={{
-            ...props.style,
-            height: '42px',
-            width: '45px',
-            borderRadius: '4px',
-            backgroundColor: '#FFF',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            boxShadow: '0px 2px 6px #AAA'
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: '-28px',
-              color: '#fff',
-              fontWeight: 'bold',
-              width: '60px',
-              fontSize: '12px',
-              fontFamily: 'Arial,Helvetica Neue,Helvetica,sans-serif',
-              padding: '4px',
-              borderRadius: '4px',
-              textAlign: 'center',
-              backgroundColor: '#548BF4'
-            }}
-          >
-            {values[0] +" days"}
-          </div>
-          <div
-            style={{
-              height: '16px',
-              width: '5px',
-              backgroundColor: isDragged ? '#548BF4' : '#CCC'
-            }}
-          />
-        </div>
-        )}
-      />
-
-  </div>
 
 <Spacer y={1} />
 
