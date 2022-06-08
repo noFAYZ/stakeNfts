@@ -234,6 +234,7 @@ Return: none
           <>
 
             <Stake
+            userAddress={userAddress}
             refreshGallery={()=> refreshGallery()}
             NFTData = {NFTDatas}
             />

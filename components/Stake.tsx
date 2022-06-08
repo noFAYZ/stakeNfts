@@ -6,6 +6,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 import { Range, getTrackBackground } from 'react-range';
 
 interface Props {
+  userAddress:string,
   refreshGallery():Promise<void>,
   NFTData: { id: number; image: string; staked: boolean;}[] ,
 
@@ -22,7 +23,7 @@ const Stake:FC<Props> = (props) => {
   const [visible, setVisible] = useState(false);
   const [stakeDone, setStakeDone] = useState(false);
 
-  let stakeData: { id: number; image: string; staked: string; time: Date}
+  let stakeData: { id: number; image: string; staked: string; time: Date; userAddress: string; stakedOn:string}
 
 
   async function isStaked(id:any) {
@@ -66,7 +67,7 @@ const Stake:FC<Props> = (props) => {
       setVisible(true)
       setStaked(stake)
       setStakeDone(false)
-      
+
       stake.map(async (x:any) => {
 
   if(!await isStaked(x.value)) {
@@ -78,7 +79,9 @@ const Stake:FC<Props> = (props) => {
             id: x.value,
             image: x.src,
             staked: "TRUE",
-            time: toDate
+            time: toDate,
+            userAddress: props.userAddress,
+            stakedOn: toDate.toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',timeZone: 'UTC', timeZoneName: 'short' })
           }
 
           const data = await axios.post('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a',stakeData)
