@@ -49,6 +49,8 @@ const Stake:FC<Props> = (props) => {
     }
     
     }
+
+
   refreshG()
     
     console.log("NFTs: ",props.NFTData)
@@ -68,35 +70,46 @@ const Stake:FC<Props> = (props) => {
       setStaked(stake)
       setStakeDone(false)
 
-      stake.map(async (x:any) => {
-
-  if(!await isStaked(x.value)) {
-
-       const toDate:Date = new Date() 
-       console.log(toDate)
-
-          stakeData={
-            id: x.value,
-            image: x.src,
-            staked: "TRUE",
-            time: toDate,
-            userAddress: props.userAddress,
-            stakedOn: toDate.toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',timeZone: 'UTC', timeZoneName: 'short' })
+      const getData = async () => {
+        return Promise.all(stake.map(async (x:any) => {
+          console.log("Stake Started")
+          if(!await isStaked(x.value)) {
+  
+         const toDate:Date = new Date() 
+         console.log(toDate)
+  
+            stakeData={
+              id: x.value,
+              image: x.src,
+              staked: "TRUE",
+              time: toDate,
+              userAddress: props.userAddress,
+              stakedOn: toDate.toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',timeZone: 'UTC', timeZoneName: 'short' })
+            }
+  
+            const data = await axios.post('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a',stakeData)
+            console.log(data.status,stakeData)
+  
+           
           }
+          else{
+            console.log("Already Staked")
+            setVisible(false)
+          }
+          
+        }))
+      }
 
-          const data = await axios.post('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a',stakeData)
-          console.log(data.status,stakeData)
-
-         
-        }
-        else{
-          console.log("Already Staked")
-          setVisible(false)
-        }
+      getData().then(data => {
+        
+       console.log("Gallery Refreshed")
+       setStakeDone(true)
         
       })
-        
-      setStakeDone(true)
+
+
+
+     
  
     }
 
@@ -106,36 +119,45 @@ const Stake:FC<Props> = (props) => {
       setStaked(stake)
       setStakeDone(false)
       
-      stake.map(async (x:any) => {
+      const getData = async () => {
+        return Promise.all(stake.map(async (x:any) => {
 
-  if(await isStaked(x.value)) {
+    
 
-       const toDate:Date = new Date( (new Date()).setDate((new Date()).getDate() + values[0]) ) 
-       console.log(toDate)
-       let stakedData: {limit:number; query_type:string; id: number; image: string; staked}
-          stakedData={
-            'limit': 1,
-          'query_type': 'and',
-            'id': x.value,
-            'image': x.src,
-            'staked': "TRUE",
-          }
+      if(await isStaked(x.value)) {
 
-          const data = await axios.delete('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a/id/'+stakedData.id+'')
-          console.log(data.status,stakeData)
+          const toDate:Date = new Date( (new Date()).setDate((new Date()).getDate() + values[0]) ) 
+          console.log(toDate)
+          let stakedData: {limit:number; query_type:string; id: number; image: string; staked}
+              stakedData={
+                'limit': 1,
+              'query_type': 'and',
+                'id': x.value,
+                'image': x.src,
+                'staked': "TRUE",
+              }
 
-         
-          setVisible(false)
-        }
+              const data = await axios.delete('https://sheet.best/api/sheets/4519fb37-8460-4f31-9de0-9e3d03201f3a/id/'+stakedData.id+'')
+              console.log(data.status,stakeData)
+
+            
+              setVisible(false)
+            }
         else{
           console.log("Already Staked")
           setVisible(false)
         }
-        
-      })
 
-    
-      setStakeDone(true)
+  
+      }))}
+   
+      getData().then(data => {
+        
+        console.log("Gallery Refreshed")
+        setStakeDone(true)
+         
+       })
+
    
     }
 
@@ -175,9 +197,18 @@ const Stake:FC<Props> = (props) => {
   <Grid.Container gap={1} justify="center" css={{px:"33%"}}>
 
     
-    <Button auto color="primary"  css={{marginTop : "11px"}}  onPress={stakeNfts} >Stake</Button>
+    <Button auto color="primary"  css={{marginTop : "11px"}}  
+    onPress={async ()=>{
+      await stakeNfts()
+
+    }} 
+      >Stake</Button>
     <Spacer x={1} />
-    <Button auto color="error"  css={{marginTop : "11px"}}  flat onPress={unStakeNfts} >Unstake</Button>
+    <Button auto color="error"  css={{marginTop : "11px"}}  flat onPress={
+    async ()=>{
+      await unStakeNfts()
+      
+    }} >Unstake</Button>
 
   </Grid.Container>
 
@@ -213,3 +244,5 @@ null
 }
 
 export default Stake
+
+
